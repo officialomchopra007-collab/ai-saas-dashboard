@@ -1,43 +1,40 @@
-require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
+require("dotenv").config();
 
+const connectDB = require("./config/db");
+
+const authRoutes = require("./routes/auth.routes");
 const aiRoutes = require("./routes/ai.routes");
 
 const app = express();
 
-
-/* ================================
-   MIDDLEWARE
-================================ */
-
 app.use(cors());
 app.use(express.json());
 
+/* ===============================
+   DATABASE
+================================*/
+connectDB();
 
-/* ================================
+/* ===============================
    ROUTES
-================================ */
-
+================================*/
+app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
 
+/* ===============================
+   HEALTH CHECK
+================================*/
+app.get("/health", (req, res) => {
+  res.json({ status: "AI SaaS running 🚀" });
+});
 
-/* ================================
-   DATABASE
-================================ */
+/* ===============================
+   SERVER
+================================*/
+const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.MONGO_URI)
-.then(()=>{
-
-  console.log("MongoDB connected ✅");
-
-  app.listen(5000,()=>{
-    console.log("Server running on port 5000 🚀");
-  });
-
-})
-.catch(err=>{
-  console.log("MongoDB connection error ❌");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
